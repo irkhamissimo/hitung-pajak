@@ -21,7 +21,6 @@ const TARIF_LAPISAN_5: f64 = 0.35;
 enum StatusPerkawinan {
     Lajang,
     Kawin,
-    KawinGabung,
 }
 
 #[derive(Debug)]
