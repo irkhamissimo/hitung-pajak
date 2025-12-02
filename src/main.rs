@@ -31,17 +31,12 @@ struct DataWajibPajak {
 }
 
 struct HitunganTahunan {
-    bruto_tahuan: i32,
+    bruto_tahunan: i32,
     biaya_jabatan: i32,
     netto_tahunan: i32,
     ptkp_total: i32,
     pkp: i32,
     pajak_tahunan: i32,
-}
-
-struct HasilPajak {
-    pajak_tahunan: i32,
-    pajak_bulanan: i32,
 }
 
 fn main() {
@@ -100,6 +95,12 @@ fn main() {
     }
     let ptkp_total = ptkp + (jumlah_tanggungan * PTKP_TANGGUNGAN_ADDITION);
 
+    let data_wp = DataWajibPajak {
+        gaji_bulanan,
+        status_perkawinan,
+        jumlah_tanggungan,
+    };
+
     /* Hitung PKP */
     let pkp_awal = netto_tahunan - ptkp_total;
     let mut pkp = 0.0;
@@ -108,26 +109,56 @@ fn main() {
     }
 
     /* Hitung PPh 21 */
-    let mut pph21 = 0.0;
-    if pkp <= BATAS_LAPISAN_1 && pkp < BATAS_LAPISAN_2 {
-        pph21 = pkp * TARIF_LAPISAN_1;
+    let pph21 = if pkp <= BATAS_LAPISAN_1 {
+        pkp * TARIF_LAPISAN_1
     } else if pkp <= BATAS_LAPISAN_2 {
-        pph21 = (BATAS_LAPISAN_1 * TARIF_LAPISAN_1) + ((pkp - BATAS_LAPISAN_1) * TARIF_LAPISAN_2)
+        (BATAS_LAPISAN_1 * TARIF_LAPISAN_1) + ((pkp - BATAS_LAPISAN_1) * TARIF_LAPISAN_2)
     } else if pkp > BATAS_LAPISAN_2 && pkp <= BATAS_LAPISAN_3 {
-        pph21 = (BATAS_LAPISAN_1 * TARIF_LAPISAN_1)
+        (BATAS_LAPISAN_1 * TARIF_LAPISAN_1)
             + ((BATAS_LAPISAN_2 - BATAS_LAPISAN_1) * TARIF_LAPISAN_2)
-            + ((pkp - BATAS_LAPISAN_2) * TARIF_LAPISAN_3);
+            + ((pkp - BATAS_LAPISAN_2) * TARIF_LAPISAN_3)
     } else if pkp <= BATAS_LAPISAN_4 {
-        pph21 = (BATAS_LAPISAN_1 * TARIF_LAPISAN_1)
+        (BATAS_LAPISAN_1 * TARIF_LAPISAN_1)
             + ((BATAS_LAPISAN_2 - BATAS_LAPISAN_1) * TARIF_LAPISAN_2)
             + ((BATAS_LAPISAN_3 - BATAS_LAPISAN_2) * TARIF_LAPISAN_3)
-            + ((pkp - BATAS_LAPISAN_3) * TARIF_LAPISAN_4);
+            + ((pkp - BATAS_LAPISAN_3) * TARIF_LAPISAN_4)
     } else {
-        pph21 = (BATAS_LAPISAN_1 * TARIF_LAPISAN_1)
+        (BATAS_LAPISAN_1 * TARIF_LAPISAN_1)
             + ((BATAS_LAPISAN_2 - BATAS_LAPISAN_1) * TARIF_LAPISAN_2)
             + ((BATAS_LAPISAN_3 - BATAS_LAPISAN_2) * TARIF_LAPISAN_3)
             + ((BATAS_LAPISAN_4 - BATAS_LAPISAN_3) * TARIF_LAPISAN_4)
-            + ((pkp - BATAS_LAPISAN_4) * TARIF_LAPISAN_5);
-    }
-    println!("Pajak penghasilan Anda setahun adalah = {:?}", pph21);
+            + ((pkp - BATAS_LAPISAN_4) * TARIF_LAPISAN_5)
+    };
+
+    let hasil_tahunan = HitunganTahunan {
+        bruto_tahunan: bruto_tahunan as i32,
+        biaya_jabatan: biaya_jabatan_setahun as i32,
+        netto_tahunan: netto_tahunan as i32,
+        ptkp_total: ptkp_total as i32,
+        pkp: pkp as i32,
+        pajak_tahunan: pph21 as i32,
+    };
+    println!(
+        "
+=== Rekap Data Pajak ===
+Gaji Bulanan : {}
+Status Perkawinan : {:?}
+Jumlah Tanggungan : {}
+Bruto Tahunan : {}
+Biaya Jabatan : {}
+Netto Tahunan : {}
+PTKP Total  : {}
+PKP : {}
+Pph 21 Tahunan : {}
+",
+        data_wp.gaji_bulanan,
+        data_wp.status_perkawinan,
+        data_wp.jumlah_tanggungan,
+        hasil_tahunan.bruto_tahunan,
+        hasil_tahunan.biaya_jabatan,
+        hasil_tahunan.netto_tahunan,
+        hasil_tahunan.ptkp_total,
+        hasil_tahunan.pkp,
+        hasil_tahunan.pajak_tahunan
+    )
 }
